@@ -2,6 +2,7 @@ package masyarakatcontrollers
 
 import (
 	"Backend_TA/models"
+	"Backend_TA/utils"
 
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
@@ -46,16 +47,26 @@ func UpdateProfile(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"msg": "NIK required"})
 	}
 
+	// if err := tx.Where("id")
 	var cekData models.Masyarakat
-
-	if err := tx.Where("nik = ?", nik).First(&cekData).Error; err != nil {
+	if err := tx.Preload("User").Joins("JOIN User ON masyarakat.nik = user.id").Where("user.id = ?", nik).First(&cekData).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"msg": "Data tidak ditemukan"})
+			return c.Status(404).JSON(fiber.Map{"msg": "User not found"})
 		}
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"msg": err.Error()})
 	}
 
+	var user models.User
+	user.ID = nik
+	if err := c.BodyParser(&user); err != nil {
+		return c.Status(400).JSON(fiber.Map{"msg": err.Error()})
+	}
+
+	if user.Email == "" {
+		return c.Status(400).JSON(fiber.Map{"msg": "Email tidak boleh kosong"})
+	}
 	var masyarakat models.Masyarakat
+	masyarakat.NIK = nik
 	if err := c.BodyParser(&masyarakat); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"msg": err.Error()})
 	}
@@ -72,10 +83,6 @@ func UpdateProfile(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"msg": "Tempat lahir required"})
 	}
 
-	// if masyarakat.Birthday == "" {
-	// 	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"msg": "Tanggal lahir required"})
-	// }
-
 	if masyarakat.Alamat == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"msg": "Alamat required"})
 	}
@@ -84,11 +91,64 @@ func UpdateProfile(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"msg_validate": err.Error()})
 	}
 
+	if err := tx.Where("id = ?", nik).Updates(&user).Error; err != nil {
+		return c.Status(400).JSON(fiber.Map{"msg": err.Error()})
+	}
 	if err := tx.Where("nik = ?", nik).Updates(&masyarakat).Error; err != nil {
-		return c.Status(fiber.StatusNotModified).JSON(fiber.Map{"msg": err.Error()})
+		return c.Status(400).JSON(fiber.Map{"msg": err.Error()})
 	}
 
 	return c.JSON(fiber.Map{"msg": "Profile berhasil di update"})
+}
+
+// Cek ke forum
+func UpdatePassword(c *fiber.Ctx) error {
+	nik := c.Params("nik")
+
+	if nik == "" {
+		return c.Status(400).JSON(fiber.Map{"msg": "NIK kosong"})
+	}
+	var user models.User
+	if err := models.DB.Where("id =?", nik).First(&user).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return c.Status(404).JSON(fiber.Map{"msg": "User tidak ditemukan"})
+		}
+		return c.Status(500).JSON(fiber.Map{"msg": err.Error()})
+	}
+
+	var isValid models.NewPassword
+	if err := c.BodyParser(&isValid); err != nil {
+		return c.Status(400).JSON(fiber.Map{"msg": err.Error()})
+	}
+
+	if isValid.Old_pass == "" {
+		return c.Status(400).JSON(fiber.Map{"msg": "Old password tidak boleh kosong"})
+	}
+
+	if isValid.New_pass == "" {
+		return c.Status(400).JSON(fiber.Map{"msg": "New password tidak boleh kosong"})
+	}
+
+	if isValid.Konf_pass == "" {
+		return c.Status(400).JSON(fiber.Map{"msg": "Konfirmasi password tidak boleh kosong"})
+	}
+
+	if isValid.New_pass != isValid.Konf_pass {
+		return c.Status(400).JSON(fiber.Map{"msg": "Password tidak sesuai"})
+	}
+
+	isValid.Old_pass = utils.EncryptHash(isValid.Old_pass)
+	if isValid.Old_pass != user.Password {
+		return c.JSON(fiber.Map{"msg": "Password lama tidak sesuai"})
+	}
+
+	user.Password = utils.EncryptHash(isValid.New_pass)
+	user.Konf_pass = utils.EncryptHash(isValid.Konf_pass)
+
+	if err := models.DB.Where("id =?", nik).Updates(&user).Error; err != nil {
+		return c.Status(400).JSON(fiber.Map{"msg": err.Error()})
+	}
+	return c.JSON(fiber.Map{"msg": "Password berhasil diubah"})
 }
 
 func DeleteProfile(c *fiber.Ctx) error {

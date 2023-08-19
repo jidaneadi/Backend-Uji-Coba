@@ -24,6 +24,7 @@ func main() {
 	profile.Get("/", masyarakatcontrollers.Show)
 	profile.Get("/:nik", masyarakatcontrollers.ShowId)
 	profile.Put("/:nik", masyarakatcontrollers.UpdateProfile)
+	profile.Put("/password/:nik", masyarakatcontrollers.UpdatePassword)
 	profile.Delete("/:nik", masyarakatcontrollers.DeleteProfile)
 	app.Listen(":4000")
 }

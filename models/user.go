@@ -12,6 +12,12 @@ type User struct {
 	Role      Role   `gorm:"default:masyarakat" json:"role"`
 }
 
+type NewPassword struct {
+	Old_pass  string `json:"old_pass" validate:"min=8"`
+	New_pass  string `json:"new_pass" validate:"min=8"`
+	Konf_pass string `json:"konf_pass" validate:"min=8"`
+}
+
 type Role string
 
 const (
