@@ -14,7 +14,7 @@ type Masyarakat struct {
 	No_hp        string `json:"no_hp" validate:"numeric"`
 	Gender       Gender `gorm:"default:laki-laki" json:"gender"`
 	Tempat_lahir string `json:"tempat_lahir"`
-	//Birthday     string `json:"birthday"`
+	// Birthday     time.Time `json:"birthday"`
 	Birthday  string    `json:"birthday"`
 	Alamat    string    `json:"alamat"`
 	CreatedAt time.Time `json:"createdAt"`

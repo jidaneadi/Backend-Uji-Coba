@@ -16,8 +16,21 @@ func Show(c *fiber.Ctx) error {
 		}
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"msg": err.Error()})
 	}
-
-	return c.JSON(fiber.Map{"data": masyarakat})
+	data := make([]fiber.Map, len(masyarakat))
+	for i, users := range masyarakat {
+		data[i] = fiber.Map{
+			"nik":          users.User.ID,
+			"email":        users.User.Email,
+			"password":     users.User.Password,
+			"nama":         users.Nama,
+			"tempat_lahir": users.Tempat_lahir,
+			"birthday":     users.Birthday,
+			"gender":       users.Gender,
+			"no_hp":        users.No_hp,
+			"alamat":       users.Alamat,
+		}
+	}
+	return c.JSON(data)
 }
 
 func ShowId(c *fiber.Ctx) error {
@@ -36,7 +49,17 @@ func ShowId(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"msg": err.Error()})
 	}
 
-	return c.JSON(&masyarakat)
+	return c.JSON(fiber.Map{
+		"nik":          masyarakat.User.ID,
+		"email":        masyarakat.User.Email,
+		"password":     masyarakat.User.Password,
+		"nama":         masyarakat.Nama,
+		"tempat_lahir": masyarakat.Tempat_lahir,
+		"birthday":     masyarakat.Birthday,
+		"gender":       masyarakat.Gender,
+		"no_hp":        masyarakat.No_hp,
+		"alamat":       masyarakat.Alamat,
+	})
 }
 
 func UpdateProfile(c *fiber.Ctx) error {
@@ -44,7 +67,7 @@ func UpdateProfile(c *fiber.Ctx) error {
 	nik := c.Params("nik")
 
 	if nik == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"msg": "NIK required"})
+		return c.Status(400).JSON(fiber.Map{"msg": "NIK required"})
 	}
 
 	// if err := tx.Where("id")
@@ -68,27 +91,27 @@ func UpdateProfile(c *fiber.Ctx) error {
 	var masyarakat models.Masyarakat
 	masyarakat.NIK = nik
 	if err := c.BodyParser(&masyarakat); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"msg": err.Error()})
+		return c.Status(400).JSON(fiber.Map{"msg": err.Error()})
 	}
 
 	if masyarakat.Nama == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"msg": "Nama required"})
+		return c.Status(400).JSON(fiber.Map{"msg": "Nama required"})
 	}
 
 	if masyarakat.No_hp == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"msg": "Nomor hp required"})
+		return c.Status(400).JSON(fiber.Map{"msg": "Nomor hp required"})
 	}
 
 	if masyarakat.Tempat_lahir == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"msg": "Tempat lahir required"})
+		return c.Status(400).JSON(fiber.Map{"msg": "Tempat lahir required"})
 	}
 
 	if masyarakat.Alamat == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"msg": "Alamat required"})
+		return c.Status(400).JSON(fiber.Map{"msg": "Alamat required"})
 	}
 
 	if err := models.ValidateMasyarakat(&masyarakat); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"msg_validate": err.Error()})
+		return c.Status(400).JSON(fiber.Map{"msg_validate": err.Error()})
 	}
 
 	if err := tx.Where("id = ?", nik).Updates(&user).Error; err != nil {

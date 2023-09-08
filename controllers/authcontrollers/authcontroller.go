@@ -60,9 +60,8 @@ func Login(c *fiber.Ctx) error {
 	cekId := models.DB.Where("nik = ?", email.ID).First(&masyarakat)
 	if cekId.RowsAffected > 0 {
 		return c.JSON(fiber.Map{
-			"id":            email.ID,
-			"nama":          masyarakat.Nama,
 			"role":          email.Role,
+			"nama":          masyarakat.Nama,
 			"acces_token":   accesToken,
 			"refresh_token": refreshToken,
 			"msg":           "Login Berhasil",
@@ -70,7 +69,6 @@ func Login(c *fiber.Ctx) error {
 	}
 	return c.JSON(fiber.Map{
 		"msg":           "Login Berhasil",
-		"id":            email.ID,
 		"role":          email.Role,
 		"acces_token":   accesToken,
 		"refresh_token": refreshToken,
