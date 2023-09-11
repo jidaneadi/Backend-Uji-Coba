@@ -24,10 +24,11 @@ func Show(c *fiber.Ctx) error {
 			"password":     users.User.Password,
 			"nama":         users.Nama,
 			"tempat_lahir": users.Tempat_lahir,
-			"birthday":     users.Birthday,
+			"birthday":     users.Birthday[0:10],
 			"gender":       users.Gender,
 			"no_hp":        users.No_hp,
 			"alamat":       users.Alamat,
+			"createdAt":    users.CreatedAt,
 		}
 	}
 	return c.JSON(data)
@@ -55,7 +56,7 @@ func ShowId(c *fiber.Ctx) error {
 		"password":     masyarakat.User.Password,
 		"nama":         masyarakat.Nama,
 		"tempat_lahir": masyarakat.Tempat_lahir,
-		"birthday":     masyarakat.Birthday,
+		"birthday":     masyarakat.Birthday[0:10],
 		"gender":       masyarakat.Gender,
 		"no_hp":        masyarakat.No_hp,
 		"alamat":       masyarakat.Alamat,

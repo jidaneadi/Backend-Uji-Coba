@@ -15,13 +15,16 @@ type Masyarakat struct {
 	Gender       Gender `gorm:"default:laki-laki" json:"gender"`
 	Tempat_lahir string `json:"tempat_lahir"`
 	// Birthday     time.Time `json:"birthday"`
-	Birthday  string    `json:"birthday"`
+	Birthday  string    `json:"birthday" validate:"datetime=2006-02-02"`
 	Alamat    string    `json:"alamat"`
 	CreatedAt time.Time `json:"createdAt"`
 	UpdateAt  time.Time `json:"updateAt"`
 	User      *User     `gorm:"foreignKey:NIK;references:ID" json:"user"`
 }
 
+type BirthdayFormat struct {
+	Birthday time.Time `json:"birthday"`
+}
 type Gender string
 
 const (
