@@ -32,6 +32,19 @@ func GenerateRefreshTokens(claims *jwt.MapClaims) (string, error) {
 	return refreshTokens, nil
 }
 
+func VerifyAccesToken(tokenString string) (*jwt.Token, error) {
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		if _, isValid := token.Method.(*jwt.SigningMethodHMAC); !isValid {
+			return nil, fmt.Errorf("unexpected signing method : %v", token.Header["alg"])
+		}
+		return secretAccesKey, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return token, nil
+}
+
 func VerifyRefreshToken(tokenString string) (*jwt.Token, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, isValid := token.Method.(*jwt.SigningMethodHMAC); !isValid {

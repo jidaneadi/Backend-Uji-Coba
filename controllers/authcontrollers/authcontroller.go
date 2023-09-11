@@ -35,10 +35,10 @@ func Login(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadGateway).JSON(fiber.Map{"msg": "Password Failed"})
 	}
 
-	claims := jwt.MapClaims{}
-	claims["id"] = email.ID
-	claims["role"] = email.Role
-	claims["exp"] = time.Now().Add(time.Minute * 60).Unix()
+	refreshClaim := jwt.MapClaims{}
+	refreshClaim["id"] = email.ID
+	refreshClaim["role"] = email.Role
+	refreshClaim["exp"] = time.Now().Add(time.Minute * 60).Unix()
 
 	accesClaims := jwt.MapClaims{}
 	accesClaims["id"] = email.ID
@@ -50,7 +50,7 @@ func Login(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"msg": "Wrong credential"})
 	}
 
-	refreshToken, err := utils.GenerateRefreshTokens(&claims)
+	refreshToken, err := utils.GenerateRefreshTokens(&refreshClaim)
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"msg": "Wrong credential in Refresh"})
 	}
@@ -138,9 +138,9 @@ func Register(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"msg": "Tempat lahir kosong"})
 	}
 
-	// if masyarakat.Birthday == "" {
-	// 	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"msg": "Tanggal lahir kosong"})
-	// }
+	if masyarakat.Birthday == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"msg": "Tanggal lahir kosong"})
+	}
 
 	if masyarakat.Alamat == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"msg": "Alamat kosong"})
