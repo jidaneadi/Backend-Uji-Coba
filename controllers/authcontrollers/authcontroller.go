@@ -38,12 +38,12 @@ func Login(c *fiber.Ctx) error {
 	refreshClaim := jwt.MapClaims{}
 	refreshClaim["id"] = email.ID
 	refreshClaim["role"] = email.Role
-	refreshClaim["exp"] = time.Now().Add(time.Minute * 60).Unix()
+	refreshClaim["exp"] = time.Now().Add(time.Minute * 1440).Unix()
 
 	accesClaims := jwt.MapClaims{}
 	accesClaims["id"] = email.ID
 	accesClaims["role"] = email.Role
-	accesClaims["exp"] = time.Now().Add(time.Minute * 10).Unix()
+	accesClaims["exp"] = time.Now().Add(time.Minute * 3).Unix()
 
 	accesToken, err := utils.GenerateAccesTokens(&accesClaims)
 	if err != nil {
@@ -165,40 +165,47 @@ func Register(c *fiber.Ctx) error {
 
 func RefreshToken(c *fiber.Ctx) error {
 
-	refresh_token := c.FormValue("refresh_token")
+	var refreshToken models.Token
+	if err := c.BodyParser(&refreshToken); err != nil {
+		return c.Status(400).JSON(fiber.Map{"msg": err.Error()})
+	}
 
-	claims, err := utils.DecodeRefreshTokens(refresh_token)
+	if refreshToken.Refresh_token == "" {
+		return c.Status(404).JSON(fiber.Map{"msg": "Refresh Token Kosong"})
+	}
+
+	claims, err := utils.DecodeRefreshTokens(refreshToken.Refresh_token)
 
 	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+		return c.Status(401).JSON(fiber.Map{
 			"msg": "invalid refresh token",
 		})
 	}
 
 	newClaims := jwt.MapClaims{}
 	newClaims["id"] = claims["id"].(string)
-	newClaims["exp"] = time.Now().Add(time.Minute * 60).Unix()
+	newClaims["exp"] = time.Now().Add(time.Minute * 1440).Unix()
 
 	newAccesClaims := jwt.MapClaims{}
 	newAccesClaims["id"] = claims["id"].(string)
-	newAccesClaims["exp"] = time.Now().Add(time.Minute * 10).Unix()
+	newAccesClaims["exp"] = time.Now().Add(time.Minute * 3).Unix()
 
 	newAccesTokens, err := utils.GenerateAccesTokens(&newAccesClaims)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+		return c.Status(500).JSON(fiber.Map{
 			"msg": "Failed to generate new access token",
 		})
 	}
 
 	newRefreshToken, err := utils.GenerateRefreshTokens(&newClaims)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+		return c.Status(500).JSON(fiber.Map{
 			"msg": "Failed to generate new refresh token",
 		})
 	}
 
 	return c.JSON(fiber.Map{
-		"access_token":  newAccesTokens,
+		"acces_token":   newAccesTokens,
 		"refresh_token": newRefreshToken,
 		"msg":           "Refresh token generated successfully",
 	})

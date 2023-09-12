@@ -19,7 +19,7 @@ func main() {
 	auth := api.Group("auth")
 	profile := api.Group("/profile")
 
-	auth.Post("/refresh", middlewares.Auth, authcontrollers.RefreshToken)
+	auth.Post("/refresh", authcontrollers.RefreshToken)
 
 	auth.Post("/register", authcontrollers.Register)
 	auth.Post("/login", authcontrollers.Login)
