@@ -20,14 +20,14 @@ func main() {
 	profile := api.Group("/profile")
 
 	auth.Post("/refresh", authcontrollers.RefreshToken)
-
 	auth.Post("/register", authcontrollers.Register)
 	auth.Post("/login", authcontrollers.Login)
 
 	profile.Get("/", middlewares.Auth, masyarakatcontrollers.Show)
-	profile.Get("/:nik", masyarakatcontrollers.ShowId)
-	profile.Put("/:nik", masyarakatcontrollers.UpdateProfile)
-	profile.Put("/password/:nik", masyarakatcontrollers.UpdatePassword)
-	profile.Delete("/:nik", masyarakatcontrollers.DeleteProfile)
+	profile.Post("/", middlewares.Auth, authcontrollers.Register)
+	profile.Get("/:nik", middlewares.Auth, masyarakatcontrollers.ShowId)
+	profile.Put("/:nik", middlewares.Auth, masyarakatcontrollers.UpdateProfile)
+	profile.Put("/password/:nik", middlewares.Auth, masyarakatcontrollers.UpdatePassword)
+	profile.Delete("/:nik", middlewares.Auth, masyarakatcontrollers.DeleteProfile)
 	app.Listen(":4000")
 }
