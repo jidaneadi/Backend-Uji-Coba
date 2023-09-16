@@ -96,19 +96,23 @@ func UpdateProfile(c *fiber.Ctx) error {
 	}
 
 	if masyarakat.Nama == "" {
-		return c.Status(400).JSON(fiber.Map{"msg": "Nama required"})
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"msg": "Nama kosong"})
 	}
 
 	if masyarakat.No_hp == "" {
-		return c.Status(400).JSON(fiber.Map{"msg": "Nomor hp required"})
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"msg": "Nomor hp kosong"})
 	}
 
 	if masyarakat.Tempat_lahir == "" {
-		return c.Status(400).JSON(fiber.Map{"msg": "Tempat lahir required"})
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"msg": "Tempat lahir kosong"})
+	}
+
+	if masyarakat.Birthday == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"msg": "Tanggal lahir kosong"})
 	}
 
 	if masyarakat.Alamat == "" {
-		return c.Status(400).JSON(fiber.Map{"msg": "Alamat required"})
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"msg": "Alamat kosong"})
 	}
 
 	if err := models.ValidateMasyarakat(&masyarakat); err != nil {
