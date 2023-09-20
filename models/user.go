@@ -30,6 +30,11 @@ func ValidateUser(user *User) error {
 	return validate.Struct(user)
 }
 
+func ValidatePass(password *NewPassword) error {
+	validate := validator.New()
+	return validate.Struct(password)
+}
+
 func (User) TableName() string {
 	return "user"
 }

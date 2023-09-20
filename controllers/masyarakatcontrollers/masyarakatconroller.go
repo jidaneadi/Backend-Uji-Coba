@@ -165,9 +165,13 @@ func UpdatePassword(c *fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{"msg": "Password tidak sesuai"})
 	}
 
+	if err := models.ValidatePass(&isValid); err != nil {
+		return c.Status(400).JSON(fiber.Map{"msg": "Password harus berjumlah minimal 8 karakter"})
+	}
+
 	isValid.Old_pass = utils.EncryptHash(isValid.Old_pass)
 	if isValid.Old_pass != user.Password {
-		return c.JSON(fiber.Map{"msg": "Password lama tidak sesuai"})
+		return c.Status(400).JSON(fiber.Map{"msg": "Password lama tidak sesuai"})
 	}
 
 	user.Password = utils.EncryptHash(isValid.New_pass)

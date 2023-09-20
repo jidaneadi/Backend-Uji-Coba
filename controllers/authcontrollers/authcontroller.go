@@ -38,12 +38,12 @@ func Login(c *fiber.Ctx) error {
 	refreshClaim := jwt.MapClaims{}
 	refreshClaim["id"] = email.ID
 	refreshClaim["role"] = email.Role
-	refreshClaim["exp"] = time.Now().Add(time.Minute * 5).Unix()
+	refreshClaim["exp"] = time.Now().Add(time.Hour * 5).Unix()
 
 	accesClaims := jwt.MapClaims{}
 	accesClaims["id"] = email.ID
 	accesClaims["role"] = email.Role
-	accesClaims["exp"] = time.Now().Add(time.Second * 30).Unix()
+	accesClaims["exp"] = time.Now().Add(time.Minute * 3).Unix()
 
 	accesToken, err := utils.GenerateAccesTokens(&accesClaims)
 	if err != nil {
@@ -185,12 +185,12 @@ func RefreshToken(c *fiber.Ctx) error {
 	newClaims := jwt.MapClaims{}
 	newClaims["id"] = claims["id"].(string)
 	newClaims["role"] = claims["role"].(string)
-	newClaims["exp"] = time.Now().Add(time.Minute * 5).Unix()
+	newClaims["exp"] = time.Now().Add(time.Hour * 5).Unix()
 
 	newAccesClaims := jwt.MapClaims{}
 	newAccesClaims["id"] = claims["id"].(string)
 	newAccesClaims["role"] = claims["role"].(string)
-	newAccesClaims["exp"] = time.Now().Add(time.Second * 30).Unix()
+	newAccesClaims["exp"] = time.Now().Add(time.Minute * 3).Unix()
 
 	newAccesTokens, err := utils.GenerateAccesTokens(&newAccesClaims)
 	if err != nil {
