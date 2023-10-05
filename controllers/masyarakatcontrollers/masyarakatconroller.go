@@ -19,16 +19,17 @@ func Show(c *fiber.Ctx) error {
 	data := make([]fiber.Map, len(masyarakat))
 	for i, users := range masyarakat {
 		data[i] = fiber.Map{
-			"nik":          users.User.ID,
-			"email":        users.User.Email,
-			"password":     users.User.Password,
-			"nama":         users.Nama,
-			"tempat_lahir": users.Tempat_lahir,
-			"birthday":     users.Birthday[0:10],
-			"gender":       users.Gender,
-			"no_hp":        users.No_hp,
-			"alamat":       users.Alamat,
-			"createdAt":    users.CreatedAt,
+			"nik":           users.User.ID,
+			"email":         users.User.Email,
+			"password":      users.User.Password,
+			"id_masyarakat": users.Idm,
+			"nama":          users.Nama,
+			"tempat_lahir":  users.Tempat_lahir,
+			"birthday":      users.Birthday[0:10],
+			"gender":        users.Gender,
+			"no_hp":         users.No_hp,
+			"alamat":        users.Alamat,
+			"createdAt":     users.CreatedAt,
 		}
 	}
 	return c.JSON(data)
@@ -51,15 +52,16 @@ func ShowId(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(fiber.Map{
-		"nik":          masyarakat.User.ID,
-		"email":        masyarakat.User.Email,
-		"password":     masyarakat.User.Password,
-		"nama":         masyarakat.Nama,
-		"tempat_lahir": masyarakat.Tempat_lahir,
-		"birthday":     masyarakat.Birthday[0:10],
-		"gender":       masyarakat.Gender,
-		"no_hp":        masyarakat.No_hp,
-		"alamat":       masyarakat.Alamat,
+		"nik":           masyarakat.User.ID,
+		"email":         masyarakat.User.Email,
+		"password":      masyarakat.User.Password,
+		"id_masyarakat": masyarakat.Idm,
+		"nama":          masyarakat.Nama,
+		"tempat_lahir":  masyarakat.Tempat_lahir,
+		"birthday":      masyarakat.Birthday[0:10],
+		"gender":        masyarakat.Gender,
+		"no_hp":         masyarakat.No_hp,
+		"alamat":        masyarakat.Alamat,
 	})
 }
 

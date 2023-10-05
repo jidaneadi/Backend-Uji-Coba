@@ -8,22 +8,17 @@ import (
 )
 
 type Masyarakat struct {
-	Idm          string `gorm:"primaryKey;autoIncrement;column:idm" json:"idm"`
-	NIK          string `json:"nik" validate:"numeric,min=15"`
-	Nama         string `json:"nama"`
-	No_hp        string `json:"no_hp" validate:"numeric"`
-	Gender       Gender `gorm:"default:laki-laki" json:"gender"`
-	Tempat_lahir string `json:"tempat_lahir"`
-	// Birthday     time.Time `json:"birthday"`
-	Birthday  string    `json:"birthday" validate:"datetime=2006-02-02"`
-	Alamat    string    `json:"alamat"`
-	CreatedAt time.Time `json:"createdAt"`
-	UpdateAt  time.Time `json:"updateAt"`
-	User      *User     `gorm:"foreignKey:NIK;references:ID" json:"user"`
-}
-
-type BirthdayFormat struct {
-	Birthday time.Time `json:"birthday"`
+	Idm          string    `gorm:"primaryKey;autoIncrement;column:idm" json:"idm"`
+	NIK          string    `json:"nik" validate:"numeric,min=15"`
+	Nama         string    `json:"nama"`
+	No_hp        string    `json:"no_hp" validate:"numeric"`
+	Gender       Gender    `gorm:"default:laki-laki" json:"gender"`
+	Tempat_lahir string    `json:"tempat_lahir"`
+	Birthday     string    `json:"birthday" validate:"datetime=2006-02-02"`
+	Alamat       string    `json:"alamat"`
+	CreatedAt    time.Time `json:"createdAt"`
+	UpdateAt     time.Time `json:"updateAt"`
+	User         *User     `gorm:"foreignKey:NIK;references:ID" json:"user"`
 }
 type Gender string
 

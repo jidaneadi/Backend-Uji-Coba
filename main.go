@@ -2,6 +2,7 @@ package main
 
 import (
 	"Backend_TA/controllers/authcontrollers"
+	"Backend_TA/controllers/ktpcontrollers"
 	"Backend_TA/controllers/masyarakatcontrollers"
 	"Backend_TA/middlewares"
 	"Backend_TA/models"
@@ -18,6 +19,7 @@ func main() {
 	api := app.Group("/")
 	auth := api.Group("auth")
 	profile := api.Group("/profile")
+	ktp := api.Group("/ktp")
 
 	auth.Post("/refresh", authcontrollers.RefreshToken)
 	auth.Post("/register", authcontrollers.Register)
@@ -29,5 +31,7 @@ func main() {
 	profile.Put("/:nik", middlewares.Auth, masyarakatcontrollers.UpdateProfile)
 	profile.Put("/password/:nik", middlewares.Auth, masyarakatcontrollers.UpdatePassword)
 	profile.Delete("/:nik", middlewares.Auth, masyarakatcontrollers.DeleteProfile)
+
+	ktp.Post("/", ktpcontrollers.Create)
 	app.Listen(":4000")
 }
