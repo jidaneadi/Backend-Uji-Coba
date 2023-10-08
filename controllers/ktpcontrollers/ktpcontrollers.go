@@ -89,7 +89,30 @@ func Create(c *fiber.Ctx) error {
 }
 
 func Show(c *fiber.Ctx) error {
-	return nil
+	var ktp []models.Pengantar_KTP
+
+	//Join 3 tabel
+	if err := models.DB.Preload("Surat.Masyarakat").Find(&ktp).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return c.Status(404).JSON(fiber.Map{"msg": "Data null"})
+		}
+		return c.Status(500).JSON(fiber.Map{"msg": err.Error()})
+	}
+
+	data := make([]fiber.Map, len(ktp))
+	for i, dataKtp := range ktp {
+		data[i] = fiber.Map{
+			"id_surat":   dataKtp.Id_surat,
+			"nik":        dataKtp.Surat.Masyarakat.NIK,
+			"nama":       dataKtp.Surat.Masyarakat.Nama,
+			"syarat":     dataKtp.Dokumen_syarat,
+			"jns_surat":  dataKtp.Surat.Jns_surat,
+			"status":     dataKtp.Surat.Status,
+			"tgl":        dataKtp.Surat.UpdatedAt.String()[0:10],
+			"keterangan": dataKtp.Surat.Keterangan,
+		}
+	}
+	return c.JSON(data)
 }
 
 func ShowId(c *fiber.Ctx) error {
