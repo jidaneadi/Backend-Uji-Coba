@@ -29,7 +29,7 @@ func Show(c *fiber.Ctx) error {
 			"gender":        users.Gender,
 			"no_hp":         users.No_hp,
 			"alamat":        users.Alamat,
-			"createdAt":     users.CreatedAt,
+			"createdAt":     users.CreatedAt.String()[0:10],
 		}
 	}
 	return c.JSON(data)
@@ -62,6 +62,7 @@ func ShowId(c *fiber.Ctx) error {
 		"gender":        masyarakat.Gender,
 		"no_hp":         masyarakat.No_hp,
 		"alamat":        masyarakat.Alamat,
+		"createdAt":     masyarakat.CreatedAt.String()[0:10],
 	})
 }
 
@@ -193,7 +194,11 @@ func DeleteProfile(c *fiber.Ctx) error {
 
 	var user models.User
 	if err := models.DB.Where("id = ?", nik).Delete(&user).Error; err != nil {
-		return c.Status(404).JSON(fiber.Map{"msg": err.Error()})
+		if err == gorm.ErrRecordNotFound {
+			return c.Status(404).JSON(fiber.Map{"msg": "User not found"})
+		}
+
+		return c.Status(500).JSON(fiber.Map{"msg": err.Error()})
 	}
 
 	return c.JSON(fiber.Map{"msg": "User berhasil dihapus!"})

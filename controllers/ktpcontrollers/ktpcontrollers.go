@@ -29,21 +29,12 @@ func Create(c *fiber.Ctx) error {
 		return c.Status(404).JSON(fiber.Map{"msg": err.Error()})
 	}
 
-	ktpFile, err := c.FormFile("ktp_lama")
+	dokumenSyarat, err := c.FormFile("dokumen")
 	if err != nil {
 		return c.Status(400).JSON(fiber.Map{"msg": err.Error()})
 	}
 
-	akteFile, err := c.FormFile("akte")
-	if err != nil {
-		return c.Status(400).JSON(fiber.Map{"msg": err.Error()})
-	}
-
-	ijazahFile, err := c.FormFile("ijazah")
-	if err != nil {
-		return c.Status(400).JSON(fiber.Map{"msg": err.Error()})
-	}
-
+	//Mengambil data NIK masyarakatcls
 	var masyarakat models.Masyarakat
 	if err := models.DB.Where("idm =? ", surat.Id_masyarakat).First(&masyarakat).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
@@ -52,39 +43,24 @@ func Create(c *fiber.Ctx) error {
 		return c.Status(500).JSON(fiber.Map{"msg": err.Error()})
 	}
 
-	splitKtp := strings.Split(ktpFile.Filename, ".")
-	splitIjazah := strings.Split(ijazahFile.Filename, ".")
-	splitAkte := strings.Split(akteFile.Filename, ".")
+	cekFormat := strings.Split(dokumenSyarat.Filename, ".")
 
-	if splitKtp[1] != "pdf" || splitIjazah[1] != "pdf" || splitAkte[1] != "pdf" {
+	if cekFormat[1] != "pdf" {
 		return c.Status(400).JSON(fiber.Map{"msg": "File harus berkekstensi PDF"})
 	}
-
-	ktpName := masyarakat.NIK + ktp.ID + "-KTP.pdf"
-	akteName := masyarakat.NIK + ktp.ID + "-AKTE.pdf"
-	ijazahName := masyarakat.NIK + ktp.ID + "-IJAZAH.pdf"
-	if err := c.SaveFile(ktpFile, fmt.Sprintf("./public/pengantarktp/ktp_lama/%s", ktpName)); err != nil {
+	namaDokumen := masyarakat.NIK + ktp.Id_surat + "-KTP.pdf"
+	if err := c.SaveFile(dokumenSyarat, fmt.Sprintf("./public/pengantarktp/%s", namaDokumen)); err != nil {
 		return c.Status(400).JSON(fiber.Map{"msg": err.Error()})
+
 	}
 
-	if err := c.SaveFile(akteFile, fmt.Sprintf("./public/pengantarktp/akte/%s", akteName)); err != nil {
-		return c.Status(400).JSON(fiber.Map{"msg": err.Error()})
-	}
-
-	if err := c.SaveFile(ijazahFile, fmt.Sprintf("./public/pengantarktp/ijazah/%s", ijazahName)); err != nil {
-		return c.Status(400).JSON(fiber.Map{"msg": err.Error()})
-	}
-
-	ktp.Ktp_lama = ktpName
-	ktp.Akte = akteName
-	ktp.Ijazah = ijazahName
+	ktp.Dokumen_syarat = namaDokumen
 	if err := models.DB.Create(&ktp).Error; err != nil {
 		return c.Status(400).JSON(fiber.Map{"msg": err.Error()})
 	}
 
 	return c.JSON(fiber.Map{
 		"msg": "Pengajuan berhasil",
-		// "ucob": splitAkte[1],
 	})
 }
 
@@ -116,7 +92,29 @@ func Show(c *fiber.Ctx) error {
 }
 
 func ShowId(c *fiber.Ctx) error {
-	return nil
+	id := c.Params("id")
+	var pengantar_ktp models.Pengantar_KTP
+
+	if err := models.DB.Preload("Surat.Masyarakat").
+		Joins("JOIN surat ON surat.id = pengantar_ktp.id_surat").
+		Joins("JOIN masyarakat ON masyarakat.idm = surat.id_masyarakat").
+		Where("masyarakat.nik =?", id).
+		First(&pengantar_ktp).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return c.Status(404).JSON(fiber.Map{"msg": "Data not found"})
+		}
+		return c.Status(500).JSON(fiber.Map{"msg": err.Error()})
+	}
+	return c.JSON(fiber.Map{
+		"id_surat":   pengantar_ktp.Id_surat,
+		"NIK":        pengantar_ktp.Surat.Masyarakat.NIK,
+		"Nama":       pengantar_ktp.Surat.Masyarakat.Nama,
+		"syarat":     pengantar_ktp.Dokumen_syarat,
+		"jns_surat":  pengantar_ktp.Surat.Jns_surat,
+		"status":     pengantar_ktp.Surat.Status,
+		"tgl":        pengantar_ktp.Surat.UpdatedAt.String()[0:10],
+		"keterangan": pengantar_ktp.Surat.Keterangan,
+	})
 }
 
 func Update(c *fiber.Ctx) error {

@@ -4,7 +4,6 @@ import (
 	"Backend_TA/controllers/authcontrollers"
 	"Backend_TA/controllers/ktpcontrollers"
 	"Backend_TA/controllers/masyarakatcontrollers"
-	"Backend_TA/middlewares"
 	"Backend_TA/models"
 
 	"github.com/gofiber/fiber/v2"
@@ -25,13 +24,15 @@ func main() {
 	auth.Post("/register", authcontrollers.Register)
 	auth.Post("/login", authcontrollers.Login)
 
-	profile.Get("/", middlewares.Auth, masyarakatcontrollers.Show)
-	profile.Post("/", middlewares.Auth, authcontrollers.Register)
-	profile.Get("/:nik", middlewares.Auth, masyarakatcontrollers.ShowId)
-	profile.Put("/:nik", middlewares.Auth, masyarakatcontrollers.UpdateProfile)
-	profile.Put("/password/:nik", middlewares.Auth, masyarakatcontrollers.UpdatePassword)
-	profile.Delete("/:nik", middlewares.Auth, masyarakatcontrollers.DeleteProfile)
+	profile.Get("/", masyarakatcontrollers.Show)
+	profile.Post("/", authcontrollers.Register)
+	profile.Get("/:nik", masyarakatcontrollers.ShowId)
+	profile.Put("/:nik", masyarakatcontrollers.UpdateProfile)
+	profile.Put("/password/:nik", masyarakatcontrollers.UpdatePassword)
+	profile.Delete("/:nik", masyarakatcontrollers.DeleteProfile)
 
 	ktp.Post("/", ktpcontrollers.Create)
+	ktp.Get("/", ktpcontrollers.Show)
+	ktp.Get("/:id", ktpcontrollers.ShowId)
 	app.Listen(":4000")
 }
