@@ -5,11 +5,12 @@ import (
 )
 
 type User struct {
-	ID        string `gorm:"primaryKey" json:"id" validate:"numeric,min=15"`
-	Email     string `gorm:"unique" json:"email" validate:"email"`
-	Password  string `json:"password" validate:"min=8"`
-	Konf_pass string `json:"konf_pass" validate:"min=8"`
-	Role      Role   `gorm:"default:masyarakat" json:"role"`
+	ID         string      `gorm:"primaryKey" json:"id" validate:"numeric,min=15"`
+	Email      string      `gorm:"unique" json:"email" validate:"email"`
+	Password   string      `json:"password" validate:"min=8"`
+	Konf_pass  string      `json:"konf_pass" validate:"min=8"`
+	Role       Role        `gorm:"default:masyarakat" json:"role"`
+	Masyarakat *Masyarakat `gorm:"foreignKey:NIK;references:ID" json:"masyarakat"`
 }
 
 type NewPassword struct {

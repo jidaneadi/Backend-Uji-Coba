@@ -65,23 +65,26 @@ func Create(c *fiber.Ctx) error {
 }
 
 func Show(c *fiber.Ctx) error {
-	var ktp []models.Pengantar_KTP
+	var dataMasyarakat []models.Masyarakat
 
 	//Join 3 tabel
-	if err := models.DB.Preload("Surat.Masyarakat").Find(&ktp).Error; err != nil {
+	if err := models.DB.Preload("Surat.Pengantar_KTP").
+		Joins("JOIN surat ON surat.id_masyarakat = masyarakat.idm").
+		Joins("JOIN pengantar_ktp ON pengantar_ktp.id_surat = surat.id").
+		Find(&dataMasyarakat).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return c.Status(404).JSON(fiber.Map{"msg": "Data null"})
 		}
 		return c.Status(500).JSON(fiber.Map{"msg": err.Error()})
 	}
 
-	data := make([]fiber.Map, len(ktp))
-	for i, dataKtp := range ktp {
+	data := make([]fiber.Map, len(dataMasyarakat))
+	for i, dataKtp := range dataMasyarakat {
 		data[i] = fiber.Map{
-			"id_surat":   dataKtp.Id_surat,
-			"nik":        dataKtp.Surat.Masyarakat.NIK,
-			"nama":       dataKtp.Surat.Masyarakat.Nama,
-			"syarat":     dataKtp.Dokumen_syarat,
+			"id_surat":   dataKtp.Surat.ID,
+			"nik":        dataKtp.NIK,
+			"nama":       dataKtp.Nama,
+			"syarat":     dataKtp.Surat.Pengantar_KTP.Dokumen_syarat,
 			"jns_surat":  dataKtp.Surat.Jns_surat,
 			"status":     dataKtp.Surat.Status,
 			"tgl":        dataKtp.Surat.UpdatedAt.String()[0:10],
@@ -93,28 +96,30 @@ func Show(c *fiber.Ctx) error {
 
 func ShowId(c *fiber.Ctx) error {
 	id := c.Params("id")
-	var pengantar_ktp models.Pengantar_KTP
+	var dataMasyarakat []models.Masyarakat
 
-	if err := models.DB.Preload("Surat.Masyarakat").
-		Joins("JOIN surat ON surat.id = pengantar_ktp.id_surat").
-		Joins("JOIN masyarakat ON masyarakat.idm = surat.id_masyarakat").
+	if err := models.DB.Preload("Surat.Pengantar_KTP").
 		Where("masyarakat.nik =?", id).
-		First(&pengantar_ktp).Error; err != nil {
+		Find(&dataMasyarakat).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return c.Status(404).JSON(fiber.Map{"msg": "Data not found"})
 		}
 		return c.Status(500).JSON(fiber.Map{"msg": err.Error()})
 	}
-	return c.JSON(fiber.Map{
-		"id_surat":   pengantar_ktp.Id_surat,
-		"NIK":        pengantar_ktp.Surat.Masyarakat.NIK,
-		"Nama":       pengantar_ktp.Surat.Masyarakat.Nama,
-		"syarat":     pengantar_ktp.Dokumen_syarat,
-		"jns_surat":  pengantar_ktp.Surat.Jns_surat,
-		"status":     pengantar_ktp.Surat.Status,
-		"tgl":        pengantar_ktp.Surat.UpdatedAt.String()[0:10],
-		"keterangan": pengantar_ktp.Surat.Keterangan,
-	})
+	data := make([]fiber.Map, len(dataMasyarakat))
+	for i, dataKtp := range dataMasyarakat {
+		data[i] = fiber.Map{
+			"id_surat":   dataKtp.Surat.ID,
+			"nik":        dataKtp.NIK,
+			"nama":       dataKtp.Nama,
+			"syarat":     dataKtp.Surat.Pengantar_KTP.Dokumen_syarat,
+			"jns_surat":  dataKtp.Surat.Jns_surat,
+			"status":     dataKtp.Surat.Status,
+			"tgl":        dataKtp.Surat.UpdatedAt.String()[0:10],
+			"keterangan": dataKtp.Surat.Keterangan,
+		}
+	}
+	return c.JSON(data)
 }
 
 func Update(c *fiber.Ctx) error {

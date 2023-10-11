@@ -7,14 +7,14 @@ import (
 )
 
 type Surat struct {
-	ID            string      `gorm:"primariKey;autoIncrement" json:"id"`
-	Id_masyarakat string      `json:"id_masyarakat" validate:"numeric,min=15"`
-	Jns_surat     string      `gorm:"default:ktp" json:"jns_surat"`
-	Status        string      `gorm:"default:diproses" json:"status"`
-	Keterangan    string      `json:"keterangan"`
-	CreatedAt     time.Time   `json:"created_at"`
-	UpdatedAt     time.Time   `json:"updated_at"`
-	Masyarakat    *Masyarakat `gorm:"foreignKey:Id_masyarakat;references:Idm" json:"masyarakat"`
+	ID            string         `gorm:"primariKey;autoIncrement" json:"id"`
+	Id_masyarakat string         `json:"id_masyarakat" validate:"numeric,min=15"`
+	Jns_surat     string         `gorm:"default:ktp" json:"jns_surat"`
+	Status        string         `gorm:"default:diproses" json:"status"`
+	Keterangan    string         `json:"keterangan"`
+	CreatedAt     time.Time      `json:"created_at"`
+	UpdatedAt     time.Time      `json:"updated_at"`
+	Pengantar_KTP *Pengantar_KTP `gorm:"foreignKey:Id_surat;references:ID" json:"pengantar_ktp"`
 }
 
 func ValidateSurat(surat *Surat) error {

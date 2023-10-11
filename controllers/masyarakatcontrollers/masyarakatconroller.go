@@ -9,27 +9,27 @@ import (
 )
 
 func Show(c *fiber.Ctx) error {
-	var masyarakat []models.Masyarakat
-	if err := models.DB.Preload("User").Find(&masyarakat).Error; err != nil {
+	var user []models.User
+	if err := models.DB.Preload("Masyarakat").Joins("JOIN masyarakat ON masyarakat.nik = user.id").Find(&user).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"msg": "User not found"})
 		}
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"msg": err.Error()})
 	}
-	data := make([]fiber.Map, len(masyarakat))
-	for i, users := range masyarakat {
+	data := make([]fiber.Map, len(user))
+	for i, users := range user {
 		data[i] = fiber.Map{
-			"nik":           users.User.ID,
-			"email":         users.User.Email,
-			"password":      users.User.Password,
-			"id_masyarakat": users.Idm,
-			"nama":          users.Nama,
-			"tempat_lahir":  users.Tempat_lahir,
-			"birthday":      users.Birthday[0:10],
-			"gender":        users.Gender,
-			"no_hp":         users.No_hp,
-			"alamat":        users.Alamat,
-			"createdAt":     users.CreatedAt.String()[0:10],
+			"nik":           users.ID,
+			"email":         users.Email,
+			"password":      users.Password,
+			"id_masyarakat": users.Masyarakat.Idm,
+			"nama":          users.Masyarakat.Nama,
+			"tempat_lahir":  users.Masyarakat.Tempat_lahir,
+			"birthday":      users.Masyarakat.Birthday[0:10],
+			"gender":        users.Masyarakat.Gender,
+			"no_hp":         users.Masyarakat.No_hp,
+			"alamat":        users.Masyarakat.Alamat,
+			"createdAt":     users.Masyarakat.CreatedAt.String()[0:10],
 		}
 	}
 	return c.JSON(data)
@@ -43,8 +43,8 @@ func ShowId(c *fiber.Ctx) error {
 	}
 
 	tx := models.DB
-	var masyarakat models.Masyarakat
-	if err := tx.Preload("User").Joins("JOIN User ON masyarakat.nik = user.id").Where("user.id = ?", nik).First(&masyarakat).Error; err != nil {
+	var user models.User
+	if err := tx.Preload("Masyarakat").Where("user.id = ?", nik).First(&user).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return c.Status(404).JSON(fiber.Map{"msg": "User not found"})
 		}
@@ -52,17 +52,17 @@ func ShowId(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(fiber.Map{
-		"nik":           masyarakat.User.ID,
-		"email":         masyarakat.User.Email,
-		"password":      masyarakat.User.Password,
-		"id_masyarakat": masyarakat.Idm,
-		"nama":          masyarakat.Nama,
-		"tempat_lahir":  masyarakat.Tempat_lahir,
-		"birthday":      masyarakat.Birthday[0:10],
-		"gender":        masyarakat.Gender,
-		"no_hp":         masyarakat.No_hp,
-		"alamat":        masyarakat.Alamat,
-		"createdAt":     masyarakat.CreatedAt.String()[0:10],
+		"nik":           user.ID,
+		"email":         user.Email,
+		"password":      user.Password,
+		"id_masyarakat": user.Masyarakat.Idm,
+		"nama":          user.Masyarakat.Nama,
+		"tempat_lahir":  user.Masyarakat.Tempat_lahir,
+		"birthday":      user.Masyarakat.Birthday[0:10],
+		"gender":        user.Masyarakat.Gender,
+		"no_hp":         user.Masyarakat.No_hp,
+		"alamat":        user.Masyarakat.Alamat,
+		"createdAt":     user.Masyarakat.CreatedAt.String()[0:10],
 	})
 }
 
@@ -75,8 +75,8 @@ func UpdateProfile(c *fiber.Ctx) error {
 	}
 
 	// if err := tx.Where("id")
-	var cekData models.Masyarakat
-	if err := tx.Preload("User").Joins("JOIN User ON masyarakat.nik = user.id").Where("user.id = ?", nik).First(&cekData).Error; err != nil {
+	var cekData models.User
+	if err := tx.Preload("Masyarakat").Where("user.id = ?", nik).First(&cekData).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return c.Status(404).JSON(fiber.Map{"msg": "User not found"})
 		}

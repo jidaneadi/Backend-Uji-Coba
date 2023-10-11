@@ -18,7 +18,7 @@ type Masyarakat struct {
 	Alamat       string    `json:"alamat"`
 	CreatedAt    time.Time `json:"createdAt"`
 	UpdateAt     time.Time `json:"updateAt"`
-	User         *User     `gorm:"foreignKey:NIK;references:ID" json:"user"`
+	Surat        *Surat    `gorm:"foreignKey:Id_masyarakat;references:Idm" json:"surat"`
 }
 type Gender string
 
